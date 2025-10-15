@@ -1,0 +1,27 @@
+{
+  "name": "chgis-mcp-server",
+  "version": "1.0.0",
+  "description": "CHGIS时空地名查询API的MCP服务器包装器",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chgis",
+    "mcp",
+    "gazetteer",
+    "historical-geography",
+    "china"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "axios": "^1.12.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

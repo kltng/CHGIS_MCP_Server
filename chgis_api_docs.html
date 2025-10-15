@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0034)http://tgaz.fudan.edu.cn/tgaz/? -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+  <title>时空地名查询辞典API接口用法详情</title> 
+  <link rel="icon" href="http://tgaz.fudan.edu.cn/tgaz/graf/tgaz.ico" /> 
+  <link rel="stylesheet" type="text/css" href="./css/tgaz3.css" /> 
+ </head> 
+ <body> 
+  <div id="nav"> 
+   <div class="innertube"> 
+    <a href="indexAPI.html" title="Temporal Gazetteer Home Page"><img src="./graf/TGAZ_API_icon.png" /></a> 
+    <!-- nav section --> 
+    <p><a href="indexAPI.html?#intro"><b>简介</b></a><br /> </p>
+    <p><a href="indexAPI.html?#usage"><b>用法</b></a><br /> </p>
+    <p><a href="indexAPI.html?#examples"><b>举例</b></a><br /> </p>
+    <p><a href="indexAPIEngVer.html" ><b>English</b></a></p>
+    <!-- <p> </p> -->
+    <!-- <p><a href="http://gis.harvard.edu/" title="Center for Geographic Analysis"><b>cga</b></a> </p> -->
+   </div> 
+  </div> 
+  <div id="banner"> 
+   <div class="innertube">
+     :: TGAZ API详情
+   </div> 
+  </div> 
+  <div id="mainbox"> 
+   <div class="innertube"> 
+    <div class="header"> 
+     <table border="0" cellspacing="0" cellpadding="2" width="330"> 
+      <tbody>
+       <tr> 
+        <td>时空地名查询辞典API (Temporal Gazetteer API，简称TGAZ API) 是一个查询历史地名的Web服务</td> 
+       </tr> 
+      </tbody>
+     </table> 
+    </div> 
+    <!-- close header --> 
+    <div class="content"> 
+     <!-- 简介 -->
+	 <a name="intro"></a> 
+     <h2 id="intro">简介</h2> 
+     <p><strong>时空地名查询辞典API接口</strong>——是一个只读界面，用于搜索<a href="http://yugong.fudan.edu.cn/views/chgis_index.php " target="_blank">中国历史地理信息系统(CHGIS)地名数据库</a>的内容。时空地名查询辞典系统架构——大体上基于规范化与通用的CHGIS XML应用编程接口，以便多源集成，并且允许俗名拼音或改写。</p>
+     <p>该界面接受对UTF 8编码字符串或字形(例如，简体中文或复杂字符)地名的查询。数据库中的每个地名都记有<i>拼音</i>。 本辞典系统架构简介表 (<a href="./docs/TemporalGazetteer_Slides_20140501.pdf" target="_blank">PDF</a>).  <a href="./graf/Demo.mp4" target="_blank">视频演示</a> </p>
+     <p>另见: <a href="index.html" target="_blank">CHGIS时空地名查询辞典</a></p> 
+	 
+	 <!-- 用法介绍 -->
+	 <a name="usage"></a>
+     <h2 id="intro">用法</h2> 
+     <p>尝试使用本简易对话框,或阅读下列API使用结构：<br /> <iframe src="./query_form.html" width="600" height="305" frameborder="0" scrolling="no"></iframe> </p>
+     <p>TGAZ Web服务被设计成接收包含查询值的<a href="https://www.runoob.com/w3cnote/restful-architecture.html" target="_blank">RESTful URIs</a>，并且默认情况下以XML格式返回结果。该接口是只读的，目前提供两种功能：</p>
+     <ol> 
+      <li><strong>规范地名搜索（Canonical Placename）</strong> <br />方法 -&gt; http://tgaz.fudan.edu.cn/tgaz/placename/UNIQUE_ID</li> 
+      <p> </p>
+      <li><strong>分面搜索（Faceted Search）</strong> <br />方法 -&gt; http://tgaz.fudan.edu.cn/tgaz/placename?QUERY_PARAMETER=VALUE</li> 
+      <p> </p>
+     </ol> 
+     <p>简介：</p>
+     <ol> 
+      <li><u>精准地名搜索</u> - 用被搜索的地名ID替换上述的“UNIQUE_ID”。(目前正在使用的ID带有 <strong>hvd_</strong> 前缀，即在 <a href="http://yugong.fudan.edu.cn/views/chgis_download.php" target="_blank">CHGIS 数据</a>中的ID前加上这个前缀。例如CHGIS的ID为32180，则对应TGAZ的ID为hvd_32180). </li> 
+      <p> </p>
+      <li><u>分面搜索</u> - 允许搜索查询参数值组合.查询参数（QUERY_PARAMETER）如下：地名（n）,年份（yr）,行政等级类型（ftyp）,数据源（src）,上级单位（p）等都可以作为查询字符串的形式发送, 例如: <strong>?n=mengla&amp;yr=1820&amp;ftyp=xian</strong>。注意：默认输出为HTML,该HTML可以通过使用“FORMAT（fmt）”参数进行重新设置,即 <strong>fmt=json</strong></li> 
+     </ol> 
+     <p> 在地名，行政等级，上级单位的值中允许有空格。中文字符必须以普通UTF-8的形式发送, 而不是URLencoded十六进制字符串的形式。注意：数据库中起止年份设定为-222至1911。 </p>
+     <p></p>
+     
+	 
+	 <!-- 使用举例 -->
+	 <p> <a name="examples"></a> </p>
+     <h2 id="intro">精准地名搜索（Canonical Placename）</h2> 
+     <ul> 
+      <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename/hvd_32180" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename/hvd_32180</a></li> 
+     </ul> 
+     <p><strong>精准地名搜索格式</strong> </p>
+     <ul> 
+      <li><strong>json </strong><a href="http://tgaz.fudan.edu.cn/tgaz/placename/json/hvd_80547" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename/json/hvd_80547</a></li> 
+      <li><strong>rdf </strong><a href="http://tgaz.fudan.edu.cn/tgaz/placename/rdf/hvd_135744" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename/rdf/hvd_135744</a></li> 
+      <li><strong>html </strong><a href="http://tgaz.fudan.edu.cn/tgaz/placename/html/hvd_9732" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename/html/hvd_9732</a></li> 
+      <li><strong>xml </strong><a href="http://tgaz.fudan.edu.cn/tgaz/placename/xml/hvd_96066" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename/xml/hvd_96066</a></li> 
+     </ul> 
+     <p></p>
+     <p> </p>
+     <h2 id="intro">分面搜索（Faceted Search）</h2> 
+     <p>参数如下: </p>
+     <ul> 
+      <li><strong>n</strong>: 地名</li> 
+      <li><strong>yr</strong>: 地名所在年份</li> 
+      <li><strong>ftyp</strong>: 地名行政等级</li> 
+      <li><strong>src</strong>: 数据来源 (即CHGIS, RAS)</li> 
+      <li><strong>p</strong>: 上一级地名 (该地点所在的直接上级管辖区)</li> 
+      <li><strong>fmt</strong>: 返回的输出格式:xml、json、html</li> 
+      <p><strong>地名举例</strong> </p>
+      <ul> 
+       <li>拼音: <a href="http://tgaz.fudan.edu.cn/tgaz/placename?n=tianbian" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?n=Tianbian</a></li> 
+       <li>中文字符: <a href="http://tgaz.fudan.edu.cn/tgaz/placename?n=%E6%99%8B%E9%98%B3" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?n=晋阳</a></li> 
+       <li>藏语: <a href="http://tgaz.fudan.edu.cn/tgaz/placename?n=%E0%BD%A2%E0%BC%8B%E0%BD%A3%E0%BD%BC%E0%BC%8B%E0%BD%91%E0%BD%82%E0%BD%BC%E0%BD%93" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?n=ར་ལོ་དགོན</a></li> 
+       <li>俄语: <a href="http://tgaz.fudan.edu.cn/tgaz/placename?n=%D0%92%D1%8F%D1%82%D1%81%D0%BA%D0%BE%D0%B5%20%D0%9D%D0%B0%D0%BC%D0%B5%D1%81%D1%82%D0%BD%D0%B8%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%BE" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?n=Вятское Наместничество</a></li> 
+      </ul> 
+      <p><strong>地名 &amp; 输出格式举例</strong> </p>
+      <ul> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=json&amp;n=%E6%BB%9A%E5%BC%84" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=json&amp;n=滚弄</a></li> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=Rui%27an%20Xian" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=Rui'an Xian</a></li> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=xml&amp;n=%E6%B8%A9%E5%B7%9E" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=xml&amp;n=温州</a></li> 
+      </ul> 
+      <p><strong>地名 &amp; 地名所在年份举例</strong> </p>
+      <ul> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=%E9%BE%8D&amp;yr=800" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=龍&amp;yr=800</a></li> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=%E9%9B%99&amp;yr=300" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=雙&amp;yr=300</a></li> 
+      </ul> 
+      <p><strong>地名 &amp; 地名行政等级举例</strong> </p>
+      <ul> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=meng&amp;ftyp=%E5%B7%9E" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=meng&amp;ftyp=州</a></li> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=%E9%AE%91&amp;ftyp=cun%20zhen" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=鮑&amp;ftyp=cun zhen</a></li> 
+      </ul> 
+      <p><strong>地名 &amp; 上一级地名举例</strong> </p>
+      <ul> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=%E8%8C%B9&amp;p=%E4%B8%8A%E8%B0%B7%E9%83%A1" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=茹&amp;p=上谷郡</a></li> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=%E7%9B%A7%E6%BA%AA&amp;p=%E9%BB%94%E4%B8%AD" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=盧溪&amp;p=黔中</a></li> 
+      </ul> 
+      <p><strong>多参数分面搜索举例</strong> </p>
+      <ul> 
+       <li><a href="http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=%E5%BA%86&amp;ftyp=xian&amp;yr=1420&amp;p=Chuzhou" target="_blank">http://tgaz.fudan.edu.cn/tgaz/placename?fmt=html&amp;n=庆&amp;ftyp=xian&amp;yr=1420&amp;P=Chuzhou</a></li> 
+      </ul> 
+      <p></p>
+      <p> </p>
+     </ul>
+    </div> 
+    <!-- close content --> 
+    <div class="footer"> 
+     <table border="0" cellspacing="0" cellpadding="2"> 
+      <tbody>
+       <tr> 
+        <td> © 2014 <a href="http://www.dbr.nu/bio/" target="_blank">Lex Berman</a> and <a href="http://www.nearity.com/" target="_blank">Bill Hays</a>,党荧</td> 
+       </tr> 
+      </tbody>
+     </table> 
+    </div> 
+    <!-- close footer --> 
+    <div class="innertube"> 
+     <img src="./graf/1000px_high.PNG" /> 
+    </div> 
+    <!-- close innertube vertical spacer --> 
+   </div> 
+   <!-- close mainbox-innertube --> 
+  </div> 
+  <!-- close mainbox --> 
+ </body>
+</html>
