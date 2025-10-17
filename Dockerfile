@@ -17,5 +17,11 @@ COPY . .
 # Expose HTTP port for SSE transport
 EXPOSE 3000
 
-# Default command runs the MCP server via stdio
-CMD ["node", "src/index.js"]
+# Default to Streamable HTTP via entrypoint; pass "stdio" to use stdio
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Default transport for containerized deploys is HTTP
+ENV MCP_TRANSPORT=http
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
