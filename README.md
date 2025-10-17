@@ -83,11 +83,41 @@ curl -s -X POST http://localhost:3000/mcp \
   }' | jq .
 ```
 
+注意：根据 MCP Streamable HTTP 规范，客户端应声明同时接受 JSON 与事件流响应头。请在请求中包含：
+
+```bash
+curl -s -X POST http://localhost:3000/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/list"
+  }' | jq .
+```
+
 - 示例请求（调用工具）：
 
 ```bash
 curl -s -X POST http://localhost:3000/mcp \
   -H 'Content-Type: application/json' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "search_place_by_id",
+      "arguments": { "id": "hvd_32180", "format": "json" }
+    }
+  }' | jq .
+```
+
+带 Accept 头的示例：
+
+```bash
+curl -s -X POST http://localhost:3000/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
   -d '{
     "jsonrpc": "2.0",
     "id": 2,
@@ -107,17 +137,17 @@ npm start
 
 ### 使用 Docker 运行
 
-构建镜像并通过 Docker 运行。可选择通过 stdio 或 Streamable HTTP 方式提供 MCP：
+构建镜像并通过 Docker 运行。默认使用 Streamable HTTP；如需 stdio，可传入参数。
 
 ```bash
 # 构建镜像
 docker build -t chgis-mcp:dev .
 
-# 选项A：stdio（客户端作为父进程启动服务）
-docker run --rm -i chgis-mcp:dev
+# 选项A：Streamable HTTP（默认，容器作为HTTP服务）
+docker run --rm -p 3000:3000 chgis-mcp:dev
 
-# 选项B：Streamable HTTP（容器作为长期运行的HTTP服务）
-docker run --rm -p 3000:3000 -e MCP_TRANSPORT=http chgis-mcp:dev
+# 选项B：stdio（客户端作为父进程启动服务）
+docker run --rm -i chgis-mcp:dev stdio
 
 # 可选：使用 docker-compose（开发时方便）
 docker compose up --build
@@ -130,7 +160,7 @@ docker compose up --build
   "mcpServers": {
     "chgis": {
       "command": "docker",
-      "args": ["run", "--rm", "-i", "chgis-mcp:dev"]
+      "args": ["run", "--rm", "-i", "chgis-mcp:dev", "stdio"]
     }
   }
 }
