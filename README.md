@@ -51,8 +51,52 @@ CHGIS (China Historical Geographic Information System) 时空地名查询API的M
       "command": "node",
       "args": ["/path/to/your/chgis-mcp-server/src/index.js"]
     }
+}
+}
+```
+
+如使用 Docker（stdio）：
+
+```json
+{
+  "mcpServers": {
+    "chgis": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "chgis-mcp:dev"]
+    }
   }
 }
+```
+
+使用 Streamable HTTP（需要支持 HTTP 传输的客户端）：
+
+- 端点：`POST http://localhost:3000/mcp`
+- 示例请求（列出工具）：
+
+```bash
+curl -s -X POST http://localhost:3000/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/list"
+  }' | jq .
+```
+
+- 示例请求（调用工具）：
+
+```bash
+curl -s -X POST http://localhost:3000/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "search_place_by_id",
+      "arguments": { "id": "hvd_32180", "format": "json" }
+    }
+  }' | jq .
 ```
 
 ### 启动服务器
@@ -60,6 +104,46 @@ CHGIS (China Historical Geographic Information System) 时空地名查询API的M
 ```bash
 npm start
 ```
+
+### 使用 Docker 运行
+
+构建镜像并通过 Docker 运行。可选择通过 stdio 或 Streamable HTTP 方式提供 MCP：
+
+```bash
+# 构建镜像
+docker build -t chgis-mcp:dev .
+
+# 选项A：stdio（客户端作为父进程启动服务）
+docker run --rm -i chgis-mcp:dev
+
+# 选项B：Streamable HTTP（容器作为长期运行的HTTP服务）
+docker run --rm -p 3000:3000 -e MCP_TRANSPORT=http chgis-mcp:dev
+
+# 可选：使用 docker-compose（开发时方便）
+docker compose up --build
+```
+
+在 Claude Code 中配置为调用容器命令（stdio 示例）：
+
+```json
+{
+  "mcpServers": {
+    "chgis": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "chgis-mcp:dev"]
+    }
+  }
+}
+```
+
+如使用 HTTP 模式，请配置客户端使用 Streamable HTTP 传输（依客户端而定）。服务端端点：
+
+```
+HTTP 端点:    POST http://localhost:3000/mcp
+健康检查:     GET  http://localhost:3000/healthz
+```
+
+注意：Streamable HTTP 适合容器/远程部署；stdio 适合本地由客户端直接启动进程的场景。
 
 ## 使用示例
 
@@ -132,7 +216,7 @@ get_place_historical_context({
 
 ## API限制和注意事项
 
-1. **网络依赖**：此MCP服务器需要访问 `http://tgaz.fudan.edu.cn` 的CHGIS API
+1. **网络依赖**：此MCP服务器需要访问 `https://chgis.hudci.org/tgaz/` 的CHGIS API
 2. **时间范围**：数据库中的历史年份范围为 -222 至 1911
 3. **ID格式**：地名ID格式必须为 `hvd_` 开头加数字（如 `hvd_32180`）
 4. **字符编码**：支持UTF-8编码的中文字符，无需URL编码

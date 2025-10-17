@@ -2,6 +2,8 @@
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import express from "express";
 import {
   CallToolRequestSchema,
   ErrorCode,
@@ -10,7 +12,9 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import axios from "axios";
 
-const CHGIS_BASE_URL = "http://tgaz.fudan.edu.cn/tgaz";
+// Base URL for CHGIS API
+// Note: Keep trailing slash so URL assembly below can omit a leading slash
+const CHGIS_BASE_URL = "https://chgis.hudci.org/tgaz/";
 
 class CHGISServer {
   constructor() {
@@ -148,7 +152,7 @@ class CHGISServer {
       );
     }
 
-    const url = `${CHGIS_BASE_URL}/placename/${format}/${id}`;
+    const url = `${CHGIS_BASE_URL}placename/${format}/${id}`;
 
     try {
       const response = await axios.get(url, {
@@ -207,7 +211,7 @@ class CHGISServer {
       );
     }
 
-    const url = `${CHGIS_BASE_URL}/placename?${params.toString()}`;
+    const url = `${CHGIS_BASE_URL}placename?${params.toString()}`;
 
     try {
       const response = await axios.get(url, {
@@ -245,7 +249,7 @@ class CHGISServer {
   async getPlaceHistoricalContext(args) {
     const { id } = args;
 
-    const url = `${CHGIS_BASE_URL}/placename/xml/${id}`;
+    const url = `${CHGIS_BASE_URL}placename/xml/${id}`;
 
     try {
       const response = await axios.get(url, {
@@ -423,9 +427,53 @@ class CHGISServer {
   }
 
   async run() {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    console.error("CHGIS MCP Server running on stdio");
+    const transportMode = (process.env.MCP_TRANSPORT || "stdio").toLowerCase();
+
+    if (transportMode === "stdio") {
+      const transport = new StdioServerTransport();
+      await this.server.connect(transport);
+      console.error("CHGIS MCP Server running on stdio");
+      return;
+    }
+
+    if (transportMode === "http" || transportMode === "streamable") {
+      const app = express();
+      app.use(express.json());
+
+      // Optional origin check for security when exposed
+      const allowedOrigin = process.env.ALLOWED_ORIGIN;
+      app.use((req, res, next) => {
+        const origin = req.headers.origin;
+        if (allowedOrigin && origin && origin !== allowedOrigin) {
+          return res.status(403).send("Forbidden: invalid Origin");
+        }
+        next();
+      });
+
+      // Health endpoint
+      app.get("/healthz", (req, res) => res.status(200).send("ok"));
+
+      // Streamable HTTP single-endpoint handler (stateless)
+      app.post("/mcp", async (req, res) => {
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+          enableJsonResponse: true,
+        });
+        res.on("close", () => transport.close());
+        await this.server.connect(transport);
+        await transport.handleRequest(req, res, req.body);
+      });
+
+      const port = parseInt(process.env.PORT || process.env.MCP_PORT || "3000", 10);
+      app.listen(port, () => {
+        console.error(
+          `CHGIS MCP Server (HTTP) listening on http://0.0.0.0:${port}/mcp`
+        );
+      });
+      return;
+    }
+
+    throw new Error(`Unsupported MCP_TRANSPORT: ${transportMode}`);
   }
 }
 
